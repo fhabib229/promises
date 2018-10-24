@@ -10,7 +10,7 @@
 
 
 var Promise = require('bluebird');
-var fs = Promise.promisifyAll(require('fs'));
+var fs = (require('fs'));
 var promisification = require('./promisification.js');
 var promiseConstructor = require('./promiseConstructor.js');
 
@@ -34,18 +34,14 @@ var fetchProfileAndWriteToFile = function(readFilePath, writeFilePath) {
       fs.writeFile(err, writeFilePath);
     }
   */
-  var writer = function(username, writeFilePath) {
-    fs.writeFile(writeFilePath, username.toString());
-  };
   return promiseConstructor.pluckFirstLineFromFileAsync(readFilePath).then((username) => {
     if (!username) {
       throw new Error('Username not found!');
     } else {
       return promisification.getGitHubProfileAsync(username);
     }
-  }).then((username, writeFilePath) => {
-    console.log('username', username);
-    returnter(username, writeFilePath);
+  }).then((response) => {
+    return fs.writeFileSync(writeFilePath, JSON.stringify(response));
   });
 };
 
